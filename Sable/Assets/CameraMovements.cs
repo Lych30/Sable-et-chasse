@@ -25,7 +25,7 @@ public class CameraMovements : MonoBehaviour
     [SerializeField]
     private Vector2 _rotationXMinMax = new Vector2(-40, 40);
 
-    void Update()
+    void FixedUpdate()
     {
         float mouseX = Input.GetAxis("Mouse X") * _mouseSensitivity;
         float mouseY = Input.GetAxis("Mouse Y") * _mouseSensitivity;
@@ -43,8 +43,8 @@ public class CameraMovements : MonoBehaviour
         transform.localEulerAngles = _currentRotation;
 
         // Substract forward vector of the GameObject to point its forward vector to the target
-        //transform.position = Vector3.Lerp(transform.position, _target.position - transform.forward * _distanceFromTarget, 0.025f); ;
-        transform.position = _target.position - transform.forward * _distanceFromTarget;
+        transform.position = Vector3.Lerp(transform.position, _target.position - transform.forward * _distanceFromTarget, 0.2f); ;
+        //transform.position = _target.position - transform.forward * _distanceFromTarget;
         
     }
 }
