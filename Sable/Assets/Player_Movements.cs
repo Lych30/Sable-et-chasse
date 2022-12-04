@@ -64,7 +64,7 @@ public class Player_Movements : MonoBehaviour
                 isJumping = false;
                 part.enableEmission = true;
                 TargetY = hit.point.y;
-                transform.position = Vector3.Lerp(transform.position, new Vector3(transform.position.x, TargetY + 1f, transform.position.z), 0.5f);
+                transform.position = Vector3.Lerp(transform.position, new Vector3(transform.position.x, TargetY + 1.1f, transform.position.z), 0.075f);
         
                 //transform.position = new Vector3(transform.position.x, TargetY+1, transform.position.z);
                 Debug.Log(hit.transform.position.y);
