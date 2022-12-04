@@ -9,13 +9,12 @@ public class Player_Movements : MonoBehaviour
     RaycastHit hit;
     float TargetY = 0;
     public float maxSpeed;
-    bool canJump = false;
-    bool isJumping = false;
+    public bool isJumping = false;
     [Range(1, 3)]
     public float accelerationForce;
     [Range(0,5)]
     public float JumpForce;
-    public float JumpCheck;
+    public float JumpCheck = 5;
     Vector3 forward;
     float JumpDrag ;
     ParticleSystem part;
@@ -27,13 +26,14 @@ public class Player_Movements : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!canJump)
+        if (!isJumping)
         {
-            JumpDrag = 0.1f;
+            JumpDrag = 1f;
+            JumpCheck = 5;
         }
         else
         {
-            JumpDrag = 1f;
+            JumpDrag = 0.1f;
         }
 
         if (rb.velocity.y<1 && rb.velocity.y > -50)
@@ -43,70 +43,113 @@ public class Player_Movements : MonoBehaviour
 
         forward = Camera.main.transform.forward;
         forward = new Vector3(forward.x, 0, forward.z);
-        if (Input.GetAxis("Vertical") != 0)
+        if (Input.GetKey(KeyCode.LeftShift))
         {
-            if((rb.velocity+(-forward * accelerationForce * Input.GetAxis("Vertical"))).magnitude< maxSpeed)
+            FastMovements();
+        }
+        else
+        {
+            SlowMovements();
+        }
+        
+            if (Input.GetButtonDown("Jump") && !isJumping)
             {
-                rb.AddForce(-forward * Input.GetAxis("Vertical")* accelerationForce);
-            }
+                StartCoroutine(JumpCoroutine(0.5f));
 
-            
-        }
-        if (Input.GetAxis("Horizontal") > 0)
-        {
-            if ((rb.velocity + (Quaternion.AngleAxis(90, Vector3.up) * forward* accelerationForce)).magnitude < maxSpeed)
-            {
-                Vector3 right = Quaternion.AngleAxis(90, Vector3.up) * forward;
-                rb.AddForce(right* accelerationForce* JumpDrag);
-            }
-
-        }
-        else if (Input.GetAxis("Horizontal") < 0)
-        {
-            if ((rb.velocity + (Quaternion.AngleAxis(-90, Vector3.up) * forward* accelerationForce)).magnitude < maxSpeed)
-            {
-                Vector3 left = Quaternion.AngleAxis(-90, Vector3.up) * forward;
-                rb.AddForce(left* accelerationForce* JumpDrag);
-            }
-
-        }
-        if (Input.GetButtonDown("Jump")&& canJump)
-        {
-            StartCoroutine(JumpCoroutine(0.5f));
-         
-        }
+            }        
         
         if (Physics.Raycast(transform.position + Vector3.down, transform.TransformDirection(Vector3.down), out hit, JumpCheck) && rb.velocity.magnitude>1.0f)
         {
-            if (!isJumping)
-            {
+
+                isJumping = false;
                 part.enableEmission = true;
-                canJump = true;
                 TargetY = hit.point.y;
                 transform.position = Vector3.Lerp(transform.position, new Vector3(transform.position.x, TargetY + 1f, transform.position.z), 0.5f);
-                
+        
                 //transform.position = new Vector3(transform.position.x, TargetY+1, transform.position.z);
                 Debug.Log(hit.transform.position.y);
-            }
-            else
-            {
-                canJump = false;
-            }
+            
+       
 
         }
-        
+
+
+
 
 
         Debug.DrawRay(transform.position + Vector3.down, transform.TransformDirection(Vector3.down) * JumpCheck, Color.yellow);
 
     }
+    void FastMovements()
+    {
+        if (Input.GetAxis("Vertical") != 0)
+        {
+            if ((rb.velocity + (-forward * accelerationForce * Input.GetAxis("Vertical"))).magnitude < maxSpeed)
+            {
+                rb.AddForce(-forward * Input.GetAxis("Vertical") * accelerationForce);
+            }
+
+
+        }
+        if (Input.GetAxis("Horizontal") > 0)
+        {
+            if ((rb.velocity + (Quaternion.AngleAxis(90, Vector3.up) * forward * accelerationForce)).magnitude < maxSpeed)
+            {
+                Vector3 right = Quaternion.AngleAxis(90, Vector3.up) * forward;
+                rb.AddForce(right * accelerationForce * JumpDrag);
+            }
+
+        }
+        else if (Input.GetAxis("Horizontal") < 0)
+        {
+            if ((rb.velocity + (Quaternion.AngleAxis(-90, Vector3.up) * forward * accelerationForce)).magnitude < maxSpeed)
+            {
+                Vector3 left = Quaternion.AngleAxis(-90, Vector3.up) * forward;
+                rb.AddForce(left * accelerationForce * JumpDrag);
+            }
+
+        }
+    }
+
+    void SlowMovements()
+    {
+        if (Input.GetAxis("Vertical") != 0)
+        {
+            if ((rb.velocity + (-forward * Input.GetAxis("Vertical"))).magnitude < 10)
+            {
+                rb.AddForce(-forward * Input.GetAxis("Vertical"));
+            }
+
+
+        }
+        if (Input.GetAxis("Horizontal") > 0)
+        {
+            if ((rb.velocity + (Quaternion.AngleAxis(90, Vector3.up) * forward)).magnitude < 10)
+            {
+                Vector3 right = Quaternion.AngleAxis(90, Vector3.up) * forward;
+                rb.AddForce(right * JumpDrag);
+            }
+
+        }
+        else if (Input.GetAxis("Horizontal") < 0)
+        {
+            if ((rb.velocity + (Quaternion.AngleAxis(-90, Vector3.up) * forward)).magnitude < 10)
+            {
+                Vector3 left = Quaternion.AngleAxis(-90, Vector3.up) * forward;
+                rb.AddForce(left * JumpDrag);
+            }
+
+        }
+    }
     IEnumerator JumpCoroutine(float time)
     {
+        JumpCheck = 0;
         part.enableEmission = false;
         isJumping = true;
         rb.AddForce(((Quaternion.AngleAxis(Input.GetAxis("Vertical")*90, Vector3.up) * forward * Input.GetAxis("Vertical")) + new Vector3(0, JumpForce, 0)),ForceMode.Impulse);
         yield return new WaitForSeconds(time);
-        isJumping = false;
+        JumpCheck = 0.1f;
+
 
     }
    
