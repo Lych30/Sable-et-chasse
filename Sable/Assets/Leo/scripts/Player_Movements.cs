@@ -62,7 +62,7 @@ public class Player_Movements : MonoBehaviour
         {
 
                 isJumping = false;
-                part.enableEmission = true;
+                
                 TargetY = hit.point.y;
                 transform.position = Vector3.Lerp(transform.position, new Vector3(transform.position.x, TargetY + 1f, transform.position.z), 0.075f);
         
@@ -71,6 +71,15 @@ public class Player_Movements : MonoBehaviour
             
        
 
+        }
+
+        if (rb.velocity.magnitude > 10 && !isJumping)
+        {
+            part.enableEmission = true;
+        }
+        else if(!isJumping)
+        {
+            part.enableEmission = false;
         }
 
 
@@ -96,7 +105,7 @@ public class Player_Movements : MonoBehaviour
             if ((rb.velocity + (Quaternion.AngleAxis(90, Vector3.up) * forward * accelerationForce)).magnitude < maxSpeed)
             {
                 Vector3 right = Quaternion.AngleAxis(90, Vector3.up) * forward;
-                rb.AddForce(right * accelerationForce * JumpDrag);
+                rb.AddForce(right * accelerationForce );
             }
 
         }
@@ -105,7 +114,7 @@ public class Player_Movements : MonoBehaviour
             if ((rb.velocity + (Quaternion.AngleAxis(-90, Vector3.up) * forward * accelerationForce)).magnitude < maxSpeed)
             {
                 Vector3 left = Quaternion.AngleAxis(-90, Vector3.up) * forward;
-                rb.AddForce(left * accelerationForce * JumpDrag);
+                rb.AddForce(left * accelerationForce);
             }
 
         }
